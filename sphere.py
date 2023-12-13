@@ -3,14 +3,16 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from hittable import *
 from interval import *
+from material import *
 from vec3 import *
 
 import math
 
 class Sphere(Hittable):
-    def __init__(self, center: Point3, radius: float):
+    def __init__(self, center: Point3, radius: float, material: Material):
         self._center = center
         self._radius = radius
+        self._material = material
 
     def hit(self, r: Ray, ray_t: Interval) -> HitRecord:
         oc = r.origin - self._center
@@ -35,5 +37,6 @@ class Sphere(Hittable):
         rec.p = r.at(rec.t)
         outward_normal = (rec.p - self._center) / self._radius
         rec.set_face_normal(r, outward_normal)
+        rec.material = self._material
 
         return rec

@@ -42,11 +42,13 @@ class Camera:
                     pixel_color += self._ray_color(r, self.max_depth, world)
                 
                 pixel_color /= self.samples_per_pixel
+                pixel_color = pixel_color.clamp().linear_to_gamma()
+                pixel_color *= 255.0
 
                 ppm_file.write(pixel_color)
 
                 if self.show_preview:
-                    screen.set_at((i, j), (pixel_color.x * 255.0, pixel_color.y * 255.0, pixel_color.z * 255.0))
+                    screen.set_at((i, j), (pixel_color.x, pixel_color.y, pixel_color.z))
                 
             if self.show_preview:
                 pygame.display.update(pygame.Rect(0, j, self.image_width, 1))
@@ -96,17 +98,26 @@ class Camera:
     
     def _pixel_sample_square(self) -> Vec3:
         return (random.uniform(-0.5, 0.5) * self._pixel_delta_u) + (random.uniform(-0.5, 0.5) * self._pixel_delta_v)
+  
+    _BLACK_COLOR = Color(0.0, 0.0, 0.0)
+    _WHITE_COLOR = Color(1.0, 1.0, 1.0)
+    _SKY_COLOR = Color(0.5, 0.7, 1.0)
     
+    _STARTING_HIT_INTERVAL = Interval(0.001, float('inf'))
+
     def _ray_color(self, r: Ray, depth: int, world: Hittable) -> Color:
         # if we've exceeded the ray bounce limit, no more light is gathered
         if depth <= 0:
             return Color()
 
-        rec = world.hit(r, Interval(0.001, float('inf')))
+        rec = world.hit(r, Camera._STARTING_HIT_INTERVAL)
         if rec:
-            direction = rec.normal + Vec3.random_unit_vector()
-            return 0.5 * self._ray_color(Ray(rec.p, direction), depth - 1, world)
+            scattered, attenuation = rec.material.scatter(r, rec)
+            if scattered and attenuation:
+                return attenuation * self._ray_color(scattered, depth - 1, world)
+            else:
+                return Camera._BLACK_COLOR
 
         unit_direction = r.direction.unit_vector()
         a = 0.5 * (unit_direction.y + 1.0)
-        return (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 1.0)
+        return (1.0 - a) * Camera._WHITE_COLOR + a * Camera._SKY_COLOR

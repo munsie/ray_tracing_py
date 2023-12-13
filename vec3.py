@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 import math
 import random
+import util
 
 @dataclass(frozen=True, slots=True)
 class Vec3:
@@ -13,14 +14,23 @@ class Vec3:
     def __neg__(self) -> Vec3:
         return Vec3(-self.x, -self.y, -self.z)
 
-    def __add__(self, other: Vec3) -> Vec3:
-        return Vec3(self.x + other.x, self.y + other.y, self.z + other.z)
+    def __add__(self, other: float | int | Vec3) -> Vec3:
+        if type(other) is Vec3:
+            return Vec3(self.x + other.x, self.y + other.y, self.z + other.z)
+        else:
+            return Vec3(self.x + other, self.y + other, self.z + other)
 
-    def __sub__(self, other: Vec3) -> Vec3:
-        return Vec3(self.x - other.x, self.y - other.y, self.z - other.z)
+    def __sub__(self, other: float | int | Vec3) -> Vec3:
+        if type(other) is Vec3:
+            return Vec3(self.x - other.x, self.y - other.y, self.z - other.z)
+        else:
+            return Vec3(self.x - other, self.y - other, self.z - other)
 
-    def __mul__(self, t: float) -> Vec3:
-        return Vec3(self.x * t, self.y * t, self.z * t)
+    def __mul__(self, other: float | int | Vec3) -> Vec3:
+        if type(other) is Vec3:
+            return Vec3(self.x * other.x, self.y * other.y, self.z * other.z)
+        else:
+            return Vec3(self.x * other, self.y * other, self.z * other)
 
     def __rmul__(self, t: float) -> Vec3:
         return self * t
@@ -37,6 +47,16 @@ class Vec3:
     def unit_vector(self) -> Vec3:
         return self / self.length()
 
+    def clamp(self) -> Vec3:
+        return Vec3(util.clamp(self.x), util.clamp(self.y), util.clamp(self.z))
+
+    def linear_to_gamma(self) -> Vec3:
+        return Vec3(math.sqrt(self.x), math.sqrt(self.y), math.sqrt(self.z))
+
+    def near_zero(self) -> bool:
+        s = 1e-8
+        return (math.fabs(self.x) < s) and (math.fabs(self.y) < s) and (math.fabs(self.z) < s)
+    
     @staticmethod
     def random(min: float = 0.0, max: float = 1.0) -> Vec3:
         return Vec3(random.uniform(min, max), random.uniform(min, max), random.uniform(min, max))
@@ -69,6 +89,10 @@ class Vec3:
         return Vec3(((u.y * v.z) - (u.z * v.y)),
                     ((u.z * v.x) - (u.x * v.z)),
                     ((u.x * v.y) - (u.y * v.x)))
+
+    @staticmethod
+    def reflect(v: Vec3, n: Vec3) -> Vec3:
+        return v - 2.0 * Vec3.dot(v, n) * n
 
 Color=Vec3
 Point3=Vec3

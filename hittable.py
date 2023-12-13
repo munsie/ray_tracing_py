@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from interval import *
+from material import *
 from ray import *
 from vec3 import *
 
@@ -9,6 +10,7 @@ from vec3 import *
 class HitRecord:
     p: Point3 = Point3()
     normal: Vec3 = Vec3()
+    material: Material = Material()
     t: float = 0.0
     
     _front_face: bool = False

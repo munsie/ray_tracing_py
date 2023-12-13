@@ -34,7 +34,7 @@ class ppm:
                 else:
                     progress.update_items(cur_item=self._current_height, num_items=self._height, bar_width=ppm._PROGRESS_BAR_WIDTH, bar_type=progress.RAINBOW)
 
-        self._file.write(f'{int(255.999 * c.x)} {int(255.999 * c.y)} {int(255.999 * c.z)}\n')
+        self._file.write(f'{int(c.x)} {int(c.y)} {int(c.z)}\n')
         
     def __del__(self) -> None:
         self._file.close()
