@@ -22,10 +22,15 @@ class Lambertian:
         return Ray(rec.p, scatter_direction), self._albedo
 
 class Metal:
-    def __init__(self, albedo: Color) -> None:
+    def __init__(self, albedo: Color, fuzz: float) -> None:
         self._albedo = albedo
+        self._fuzz = fuzz if fuzz < 1.0 else 1.0
 
     def scatter(self, r_in: Ray, rec: HitRecord) -> tuple[Ray, Color]:
         reflected = Vec3.reflect(Vec3.unit_vector(r_in.direction), rec.normal)
-        return Ray(rec.p, reflected), self._albedo
+        scattered = Ray(rec.p, reflected + self._fuzz * Vec3.random_unit_vector())
+        if Vec3.dot(scattered.direction, rec.normal) > 0.0:
+            return scattered, self._albedo
+        else:
+            return None, None
 
