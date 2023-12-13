@@ -8,7 +8,7 @@ class Material:
     def scatter(self, r_in: Ray, rec: HitRecord, attenuation: Color) -> tuple[Ray, Color]:
         return None, None
 
-class Lambertian:
+class Lambertian(Material):
     def __init__(self, albedo: Color) -> None:
         self._albedo = albedo
 
@@ -21,7 +21,7 @@ class Lambertian:
 
         return Ray(rec.p, scatter_direction), self._albedo
 
-class Metal:
+class Metal(Material):
     def __init__(self, albedo: Color, fuzz: float) -> None:
         self._albedo = albedo
         self._fuzz = fuzz if fuzz < 1.0 else 1.0
