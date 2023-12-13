@@ -6,9 +6,12 @@ from ray import *
 from vec3 import *
 
 import datetime
-import pygame
 import random
 import time
+
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+import pygame
 
 class Camera:
     aspect_ratio: float = 1.0       # ratio of image width over height
